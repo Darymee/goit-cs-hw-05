@@ -2,7 +2,8 @@ import requests
 import re
 import matplotlib.pyplot as plt
 from collections import Counter
-from multiprocessing import Pool, cpu_count
+from concurrent.futures import ThreadPoolExecutor
+import os
 
 
 def map_function(text_chunk):
@@ -40,14 +41,14 @@ def main():
     url = "https://dgoldberg.sdsu.edu/515/harrypotter.txt"
     text = download_text(url)
 
-    num_chunks = cpu_count()
+    num_chunks = os.cpu_count() or 4
     chunk_size = len(text) // num_chunks
     text_chunks = [
         text[i * chunk_size : (i + 1) * chunk_size] for i in range(num_chunks)
     ]
 
-    with Pool(processes=num_chunks) as pool:
-        map_results = pool.map(map_function, text_chunks)
+    with ThreadPoolExecutor(max_workers=num_chunks) as executor:
+        map_results = list(executor.map(map_function, text_chunks))
 
     word_counts = reduce_counters(map_results)
     visualize_top_words(word_counts, top_n=10)

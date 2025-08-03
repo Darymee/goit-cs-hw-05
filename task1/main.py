@@ -1,7 +1,7 @@
 import argparse
 import asyncio
 import logging
-from pathlib import Path
+from aiopath import AsyncPath
 from sorter import read_folder
 
 logging.basicConfig(
@@ -21,10 +21,10 @@ async def main():
     parser.add_argument("output", type=str, help="Шлях до цільової папки")
     args = parser.parse_args()
 
-    source_path = Path(args.source).resolve()
-    output_path = Path(args.output).resolve()
+    source_path = await AsyncPath(args.source).resolve()
+    output_path = await AsyncPath(args.output).resolve()
 
-    if not source_path.exists() or not source_path.is_dir():
+    if not await source_path.exists() or not await source_path.is_dir():
         logging.error("Вихідна папка не існує або не є директорією.")
         print("❌ Вихідна папка не існує або не є директорією.")
         return
